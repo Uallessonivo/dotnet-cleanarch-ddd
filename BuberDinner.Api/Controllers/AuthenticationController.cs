@@ -32,7 +32,7 @@ public class AuthenticationController : ControllerBase
 
         return registerResult.Match(
             authResult => Ok(MapAuthResult(authResult)),
-            error => Problem(statusCode: StatusCodes.Status409Conflict, title: error.ToString())
+            error => Problem(statusCode: StatusCodes.Status409Conflict, title: error.Message)
         );
     }
 
@@ -44,7 +44,7 @@ public class AuthenticationController : ControllerBase
 
         return authResult.Match(
             result => Ok(MapAuthResult(result)),
-            error => Problem(statusCode: StatusCodes.Status401Unauthorized, title: error.ToString())
+            error => Problem(statusCode: StatusCodes.Status401Unauthorized, title: error.Message)
         );
     }
 

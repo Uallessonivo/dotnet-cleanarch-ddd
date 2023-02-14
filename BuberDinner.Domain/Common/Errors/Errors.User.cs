@@ -4,7 +4,10 @@ public class Errors
 {
     private Errors(string message)
     {
+        Message = message;
     }
+
+    public string Message { get; }
 
     public static class User
     {
