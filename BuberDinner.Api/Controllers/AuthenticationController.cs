@@ -1,8 +1,8 @@
 ﻿using BuberDinner.Application.Authentication.Commands.Register;
 using BuberDinner.Application.Authentication.Common;
 using BuberDinner.Application.Authentication.Queries.Login;
-using BuberDinner.Application.Common.Errors;
 using BuberDinner.Contracts.Authentication;
+using BuberDinner.Domain.Common.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
@@ -28,11 +28,11 @@ public class AuthenticationController : ControllerBase
             request.Email,
             request.Password);
 
-        OneOf<AuthenticationResult, DuplicateEmailError> registerResult = await _mediator.Send(command);
+        OneOf<AuthenticationResult, Errors> registerResult = await _mediator.Send(command);
 
         return registerResult.Match(
             authResult => Ok(MapAuthResult(authResult)),
-            _ => Problem(statusCode: StatusCodes.Status409Conflict, title: "Email already exists.")
+            error => Problem(statusCode: StatusCodes.Status409Conflict, title: error.ToString())
         );
     }
 
@@ -40,12 +40,11 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var query = new LoginQuery(request.Email, request.Password);
-        var authResult = await _mediator.Send(query);
+        OneOf<AuthenticationResult, Errors> authResult = await _mediator.Send(query);
 
         return authResult.Match(
             result => Ok(MapAuthResult(result)),
-            errors => Problem(statusCode: StatusCodes.Status401Unauthorized,
-                title: "Authentication Failed")
+            error => Problem(statusCode: StatusCodes.Status401Unauthorized, title: error.ToString())
         );
     }
 

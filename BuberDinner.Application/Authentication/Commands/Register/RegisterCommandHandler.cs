@@ -1,14 +1,14 @@
 ﻿using BuberDinner.Application.Authentication.Common;
-using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Common.Interfaces.Authentication;
 using BuberDinner.Application.Common.Interfaces.Persistence;
+using BuberDinner.Domain.Common.Errors;
 using BuberDinner.Domain.Entities;
 using MediatR;
 using OneOf;
 
 namespace BuberDinner.Application.Authentication.Commands.Register;
 
-public class RegisterCommandHandler : IRequestHandler<RegisterCommand, OneOf<AuthenticationResult, DuplicateEmailError>>
+public class RegisterCommandHandler : IRequestHandler<RegisterCommand, OneOf<AuthenticationResult, Errors>>
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUserRepository _userRepository;
@@ -19,13 +19,13 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, OneOf<Aut
         _jwtTokenGenerator = jwtTokenGenerator;
     }
 
-    public async Task<OneOf<AuthenticationResult, DuplicateEmailError>> Handle(RegisterCommand command,
+    public async Task<OneOf<AuthenticationResult, Errors>> Handle(RegisterCommand command,
         CancellationToken cancellationToken)
     {
         // Validate the user doesn't exist
         if (_userRepository.GetUserByEmail(command.Email) is not null)
         {
-            return new DuplicateEmailError();
+            return Errors.User.DuplicateEmail;
         }
 
         // Create User (generate unique ID)

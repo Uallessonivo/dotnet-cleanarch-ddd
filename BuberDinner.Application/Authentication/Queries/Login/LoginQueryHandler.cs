@@ -1,14 +1,14 @@
 ﻿using BuberDinner.Application.Authentication.Common;
-using BuberDinner.Application.Common.Errors;
 using BuberDinner.Application.Common.Interfaces.Authentication;
 using BuberDinner.Application.Common.Interfaces.Persistence;
+using BuberDinner.Domain.Common.Errors;
 using BuberDinner.Domain.Entities;
 using MediatR;
 using OneOf;
 
 namespace BuberDinner.Application.Authentication.Queries.Login;
 
-public class LoginCommandHandler : IRequestHandler<LoginQuery, OneOf<AuthenticationResult, DuplicateEmailError>>
+public class LoginCommandHandler : IRequestHandler<LoginQuery, OneOf<AuthenticationResult, Errors>>
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUserRepository _userRepository;
@@ -20,19 +20,19 @@ public class LoginCommandHandler : IRequestHandler<LoginQuery, OneOf<Authenticat
     }
 
 
-    public async Task<OneOf<AuthenticationResult, DuplicateEmailError>> Handle(LoginQuery query,
+    public async Task<OneOf<AuthenticationResult, Errors>> Handle(LoginQuery query,
         CancellationToken cancellationToken)
     {
         // Validate the user exists
         if (_userRepository.GetUserByEmail(query.Email) is not User user)
         {
-            throw new Exception("Email or password is incorrect.");
+            return Errors.User.InvalidEmailOrPassword;
         }
 
         // Valid the password is correct
         if (user.Password != query.Password)
         {
-            throw new Exception("Email or password is incorrect");
+            return Errors.User.InvalidEmailOrPassword;
         }
 
         // Create Jwt Token
