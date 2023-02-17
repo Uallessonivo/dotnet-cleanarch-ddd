@@ -3,6 +3,7 @@ using BuberDinner.Application.Authentication.Common;
 using BuberDinner.Application.Authentication.Queries.Login;
 using BuberDinner.Contracts.Authentication;
 using BuberDinner.Domain.Common.Errors;
+using MapsterMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using OneOf;
@@ -14,24 +15,23 @@ namespace BuberDinner.Api.Controllers;
 public class AuthenticationController : ControllerBase
 {
     private readonly ISender _mediator;
+    private readonly IMapper _mapper;
 
-    public AuthenticationController(ISender mediator)
+    public AuthenticationController(ISender mediator, IMapper mapper)
     {
         _mediator = mediator;
+        _mapper = mapper;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var command = new RegisterCommand(request.FirstName,
-            request.LastName,
-            request.Email,
-            request.Password);
+        var command = _mapper.Map<RegisterCommand>(request);
 
         OneOf<AuthenticationResult, Errors> registerResult = await _mediator.Send(command);
 
         return registerResult.Match(
-            authResult => Ok(MapAuthResult(authResult)),
+            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
             error => Problem(statusCode: StatusCodes.Status409Conflict, title: error.Message)
         );
     }
@@ -39,25 +39,12 @@ public class AuthenticationController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
-        var query = new LoginQuery(request.Email, request.Password);
+        var query = _mapper.Map<LoginQuery>(request);
         OneOf<AuthenticationResult, Errors> authResult = await _mediator.Send(query);
 
         return authResult.Match(
-            result => Ok(MapAuthResult(result)),
+            result => Ok(_mapper.Map<AuthenticationResponse>(result)),
             error => Problem(statusCode: StatusCodes.Status401Unauthorized, title: error.Message)
         );
-    }
-
-
-    private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
-    {
-        var response = new AuthenticationResponse(
-            authResult.User.Id,
-            authResult.User.FirstName,
-            authResult.User.LastName,
-            authResult.User.Email,
-            authResult.Token
-        );
-        return response;
     }
 }

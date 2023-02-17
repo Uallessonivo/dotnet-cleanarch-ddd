@@ -8,12 +8,12 @@ using OneOf;
 
 namespace BuberDinner.Application.Authentication.Queries.Login;
 
-public class LoginCommandHandler : IRequestHandler<LoginQuery, OneOf<AuthenticationResult, Errors>>
+public class LoginQueryHandler : IRequestHandler<LoginQuery, OneOf<AuthenticationResult, Errors>>
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
     private readonly IUserRepository _userRepository;
 
-    public LoginCommandHandler(IUserRepository userRepository, IJwtTokenGenerator jwtTokenGenerator)
+    public LoginQueryHandler(IUserRepository userRepository, IJwtTokenGenerator jwtTokenGenerator)
     {
         _userRepository = userRepository;
         _jwtTokenGenerator = jwtTokenGenerator;
@@ -23,6 +23,7 @@ public class LoginCommandHandler : IRequestHandler<LoginQuery, OneOf<Authenticat
     public async Task<OneOf<AuthenticationResult, Errors>> Handle(LoginQuery query,
         CancellationToken cancellationToken)
     {
+        await Task.CompletedTask;
         // Validate the user exists
         if (_userRepository.GetUserByEmail(query.Email) is not User user)
         {
