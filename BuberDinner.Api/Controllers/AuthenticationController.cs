@@ -27,8 +27,7 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> Register(RegisterRequest request)
     {
         var command = _mapper.Map<RegisterCommand>(request);
-
-        OneOf<AuthenticationResult, Errors> registerResult = await _mediator.Send(command);
+        var registerResult = await _mediator.Send(command);
 
         return registerResult.Match(
             authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
@@ -40,7 +39,7 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var query = _mapper.Map<LoginQuery>(request);
-        OneOf<AuthenticationResult, Errors> authResult = await _mediator.Send(query);
+        var authResult = await _mediator.Send(query);
 
         return authResult.Match(
             result => Ok(_mapper.Map<AuthenticationResponse>(result)),
