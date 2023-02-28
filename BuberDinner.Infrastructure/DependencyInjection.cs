@@ -18,13 +18,19 @@ public static class DependencyInjection
     public static IServiceCollection AddInfrastructure(this IServiceCollection services,
         ConfigurationManager builderConfiguration)
     {
-        services.AddAuth(builderConfiguration);
+        services.AddAuth(builderConfiguration).AddPersistence();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        services.AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 
-    private static IServiceCollection AddAuth(this IServiceCollection services,
+    public static IServiceCollection AddPersistence(this IServiceCollection services)
+    {
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IMenuRepository, MenuRepository>();
+        return services;
+    }
+
+    public static IServiceCollection AddAuth(this IServiceCollection services,
         ConfigurationManager builderConfiguration)
     {
         var jwtSettings = new JwtSettings();

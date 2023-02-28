@@ -1,6 +1,5 @@
 using BuberDinner.Api;
 using BuberDinner.Application;
-using BuberDinner.Domain.Common.Errors;
 using BuberDinner.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
