@@ -24,8 +24,8 @@ public sealed class Menu : AggregateRoot<MenuId>
     public IReadOnlyList<DinnerId> DinnerIds => _dinnerIds.AsReadOnly();
     public IReadOnlyList<MenuReviewId> MenuReviewIds => _menuReviewIds.AsReadOnly();
 
-    public DateTime CreatedDateTime { get; }
-    public DateTime UpdatedDateTime { get; }
+    public DateTime CreatedDateTime { get; private set;}
+    public DateTime UpdatedDateTime { get; private set;}
 
     private Menu(MenuId id, HostId hostId, string name, string description, AverageRating averageRating,
         List<MenuSection> sections) : base(id)
